@@ -1,18 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.*;
+import static org.junit.Assert.assertEquals;
 import org.junit.rules.ExpectedException;
 
-/**
- *
- * @author root
- */
 public class CreatureTest {
 
     public CreatureTest() {
@@ -38,12 +31,21 @@ public class CreatureTest {
 
    
     @Test
-    public void whatDidYouEatShouldWorkForAnyStomachContent() throws Exception {
+    public void testWhatDidYouEat() throws Exception {
         Creature t1 = new Tiger("test");
         Creature t2 = new Tiger("test2");
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(out));       
+        String expResult = "test Tiger has had nothing to eat\n";
         t1.whatDidYouEat();
-        t1.eat(t2);
+        String result = out.toString();
+        assertEquals(expResult, result);   
+        t1.eat(t2);     
+        out.reset();
         t1.whatDidYouEat();
+        expResult = "test Tiger has eaten a test2 Tiger\n";
+        result = out.toString();
+        assertEquals(expResult, result);
     }
 
 

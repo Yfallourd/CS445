@@ -25,6 +25,7 @@ public class Fly extends Creature implements Flyer {
     }
     
     public void eat(Thing thing) throws Exception {
+        //A Fly can only eat a Thing
         if ("Thing".equals(thing.getClass().getSimpleName())) {
             super.eat(thing);
         } else {

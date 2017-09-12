@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TestCreatures.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JaCoCoverage analysis of project &quot;Yohann-Fallourd-HW-1&quot; (powered by JaCoCo from EclEmma)</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">TestCreatures.java</span></div><h1>TestCreatures.java</h1><pre class="source lang-java linenums">
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.text.EditorKit;
+
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author root
+ */
+<span class="nc" id="L15">public class TestCreatures {</span>
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {
+<span class="nc" id="L21">        final int THING_COUNT = 4;</span>
+<span class="nc" id="L22">        final int CREATURE_COUNT = 5;</span>
+<span class="nc" id="L23">        Thing things[] = new Thing[THING_COUNT + CREATURE_COUNT];</span>
+<span class="nc" id="L24">        Creature creatures[] = new Creature[CREATURE_COUNT];</span>
+        //&lt;editor-fold desc=&quot;Array filling&quot;&gt;
+<span class="nc" id="L26">        things[0] = new Thing(&quot;Bob&quot;);</span>
+<span class="nc" id="L27">        things[1] = new Thing(&quot;Bobby&quot;);</span>
+<span class="nc" id="L28">        things[2] = new Thing(&quot;Bobby 2&quot;);</span>
+<span class="nc" id="L29">        things[3] = new Thing(&quot;Bobby 3, return of the Bobby&quot;);</span>
+<span class="nc" id="L30">        things[4] = new Tiger(&quot;Jake&quot;);</span>
+<span class="nc" id="L31">        things[5] = new Tiger(&quot;John&quot;);</span>
+<span class="nc" id="L32">        things[6] = new Fly(&quot;Pretty&quot;);</span>
+<span class="nc" id="L33">        things[7] = new Ant(&quot;Man&quot;);</span>
+<span class="nc" id="L34">        things[8] = new Bat(&quot;Bruce Wayne&quot;);</span>
+<span class="nc" id="L35">        creatures[0] = (Tiger) things[4];</span>
+<span class="nc" id="L36">        creatures[1] = (Tiger) things[5];</span>
+<span class="nc" id="L37">        creatures[2] = (Fly) things[6];</span>
+<span class="nc" id="L38">        creatures[3] = (Ant) things[7];</span>
+<span class="nc" id="L39">        creatures[4] = (Bat) things[8];</span>
+        //&lt;/editor-fold&gt;
+
+<span class="nc" id="L42">        System.out.println(&quot;Things :\n&quot;);</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        for (Thing i : things) {</span>
+<span class="nc" id="L44">            System.out.println(i);</span>
+        }
+<span class="nc" id="L46">        System.out.println(&quot;\nCreatures :\n&quot;);</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        for (Creature i : creatures) {</span>
+<span class="nc" id="L48">            i.move();</span>
+        }
+
+<span class="nc" id="L51">        System.out.println(&quot;\nEating time :\n&quot;);</span>
+        try {
+<span class="nc" id="L53">            creatures[0].eat(creatures[1]);</span>
+<span class="nc" id="L54">            creatures[4].eat(creatures[0]);</span>
+<span class="nc" id="L55">            creatures[3].eat(creatures[2]);</span>
+<span class="nc" id="L56">        } catch (Exception ex) {</span>
+<span class="nc" id="L57">            ex.getMessage();</span>
+<span class="nc" id="L58">        }</span>
+
+<span class="nc" id="L60">        System.out.println(&quot;\nChecking time :\n&quot;);</span>
+<span class="nc" id="L61">        creatures[0].whatDidYouEat();</span>
+<span class="nc" id="L62">        creatures[4].whatDidYouEat();</span>
+<span class="nc" id="L63">        creatures[3].whatDidYouEat();</span>
+<span class="nc" id="L64">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span></div></body></html>

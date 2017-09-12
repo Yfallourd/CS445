@@ -11,7 +11,8 @@ public class Bat extends Creature implements Flyer {
     
     @Override
     public void eat(Thing thing) throws Exception {
-        if ("Creature".equals(thing.getClass().getSimpleName())) {
+        //A Bat can only eat Creatures
+        if (!"Thing".equals(thing.getClass().getSimpleName())) {
             super.eat(thing);
         } else {
             System.out.println(this.toString()+" won't eat a "+ thing.toString());

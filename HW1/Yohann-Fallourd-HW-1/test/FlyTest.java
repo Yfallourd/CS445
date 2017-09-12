@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -12,10 +8,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author root
- */
 public class FlyTest {
     
     public FlyTest() {
@@ -42,11 +34,21 @@ public class FlyTest {
 
 
     @Test
-    public void shouldntEatACreature() throws Exception {
+    public void testEat() throws Exception {    
         Creature t1 = new Tiger("test");
         Creature t2 = new Fly("test2");
+        Thing t3 = new Thing("test3");
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(out));       
+        String expResult = "test2 Fly won't eat a test Tiger\n";
         t2.eat(t1);
-        Assert.assertTrue("Fly hasn't eaten the Creature", t2.stomachContent == null);
+        String result = out.toString();
+        assertEquals(expResult, result);
+        out.reset();
+        expResult = "test2 Fly has just eaten a test3\n";
+        t2.eat(t3);
+        result = out.toString();
+        assertEquals(expResult, result);
     }
     
 }
