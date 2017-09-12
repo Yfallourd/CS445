@@ -20,34 +20,18 @@ public class ThingTest {
     public ThingTest() {
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
     
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
-
-    /**
-     * Test of toString method, of class Thing.
-     */
     @Test
-    public void testToString() {
-        System.out.println("toString");
-        Thing instance = null;
-        String expResult = "";
+    public void testToStringOverride() {
+        Thing instance = new Thing("test");
+        String expResult = "test";
         String result = instance.toString();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        instance = new Tiger("test");
+        expResult = "test Tiger";
+        result = instance.toString();
+        assertEquals(expResult, result);
+        
     }
     
 }

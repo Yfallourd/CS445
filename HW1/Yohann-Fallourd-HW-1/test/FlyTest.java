@@ -6,6 +6,7 @@
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,57 +21,32 @@ public class FlyTest {
     public FlyTest() {
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
-
-    /**
-     * Test of move method, of class Fly.
-     */
     @Test
-    public void testMove() {
-        System.out.println("move");
-        Fly instance = null;
-        instance.move();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testMove() {        
+        Thing instance = new Thing("test");
+        String expResult = "test";
+        String result = instance.toString();
+        assertEquals(expResult, result);
     }
 
-    /**
-     * Test of fly method, of class Fly.
-     */
     @Test
     public void testFly() {
-        System.out.println("fly");
-        Fly instance = null;
-        instance.fly();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(out));
+        Creature test = new Fly("test");        
+        String expResult = "test Fly is buzzing around in flight.\n";
+        test.move();
+        String result = out.toString();
+        assertEquals(expResult, result);
     }
 
-    /**
-     * Test of eat method, of class Fly.
-     */
+
     @Test
-    public void testEat() {
-        System.out.println("eat");
-        Thing thing = null;
-        Fly instance = null;
-        instance.eat(thing);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void shouldntEatACreature() throws Exception {
+        Creature t1 = new Tiger("test");
+        Creature t2 = new Fly("test2");
+        t2.eat(t1);
+        Assert.assertTrue("Fly hasn't eaten the Creature", t2.stomachContent == null);
     }
     
 }

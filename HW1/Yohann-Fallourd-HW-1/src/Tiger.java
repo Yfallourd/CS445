@@ -16,7 +16,7 @@ public class Tiger extends Creature {
 
     @Override
     public void move() {
-        System.out.println(this.toString()+" has just pounced");
+        System.out.println(this.toString()+" has just pounced.");
     }
     
 }

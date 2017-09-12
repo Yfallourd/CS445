@@ -19,27 +19,16 @@ public class AntTest {
     
     public AntTest() {
     }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
 
     @Test
-    public void testSomeMethod() {
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testMove() {
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(out));
+        Creature test = new Ant("test");        
+        String expResult = "test Ant is crawling around.\n";
+        test.move();
+        String result = out.toString();
+        assertEquals(expResult, result);
     }
     
 }

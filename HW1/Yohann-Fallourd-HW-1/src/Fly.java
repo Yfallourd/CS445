@@ -24,7 +24,7 @@ public class Fly extends Creature implements Flyer {
         System.out.println(this.toString()+" is buzzing around in flight.");
     }
     
-    public void eat(Thing thing) {
+    public void eat(Thing thing) throws Exception {
         if ("Thing".equals(thing.getClass().getSimpleName())) {
             super.eat(thing);
         } else {

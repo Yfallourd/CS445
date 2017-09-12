@@ -6,6 +6,7 @@
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,27 +20,24 @@ public class BatTest {
     
     public BatTest() {
     }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
 
     @Test
-    public void testSomeMethod() {
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testFly() {
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(out));
+        Creature test = new Bat("test");        
+        String expResult = "test Bat is swooping through the dark.\n";
+        test.move();
+        String result = out.toString();
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void shouldntEatAThing() throws Exception {
+        Creature t1 = new Tiger("test");
+        Creature t2 = new Bat("test2");
+        t2.eat(t1);
+        Assert.assertTrue("Bat hasn't eaten the Thing", t2.stomachContent == null);
     }
     
 }

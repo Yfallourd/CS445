@@ -19,33 +19,16 @@ public class TigerTest {
     
     public TigerTest() {
     }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
 
-    /**
-     * Test of move method, of class Tiger.
-     */
     @Test
     public void testMove() {
-        System.out.println("move");
-        Tiger instance = null;
-        instance.move();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        System.setOut(new java.io.PrintStream(out));
+        Creature test = new Tiger("test");        
+        String expResult = "test Tiger has just pounced.\n";
+        test.move();
+        String result = out.toString();
+        assertEquals(expResult, result);
     }
     
 }

@@ -10,7 +10,7 @@ public class Bat extends Creature implements Flyer {
     }
     
     @Override
-    public void eat(Thing thing) {
+    public void eat(Thing thing) throws Exception {
         if ("Creature".equals(thing.getClass().getSimpleName())) {
             super.eat(thing);
         } else {
@@ -20,7 +20,7 @@ public class Bat extends Creature implements Flyer {
     
     @Override
     public void fly() {
-        System.out.println(this.toString()+" is swooping through the dark");
+        System.out.println(this.toString()+" is swooping through the dark.");
     }
     
 }
