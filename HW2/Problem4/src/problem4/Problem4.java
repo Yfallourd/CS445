@@ -5,17 +5,19 @@
  */
 package problem4;
 
-/**
- *
- * @author root
- */
+
 public class Problem4 {
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        ImprovedRandom ran = new ImprovedRandom();
+        int i=50;
+        while(i>0){
+            System.out.println(ran.boundRandInt(5, 25));
+            i--;
+        }
     }
     
 }
