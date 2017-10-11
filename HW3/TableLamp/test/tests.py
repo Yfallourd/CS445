@@ -1,9 +1,26 @@
-import unittest as ut
-from contextlib import redirect_stdout
+import sys
+import os.path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+try:
+    import unittest as ut
+except ImportError: #If you don't have the package, install it
+    import pip
+    pip.main(['install', '--user', 'unittest'])
+    import unittest as ut
+try:
+    from contextlib import redirect_stdout
+except ImportError: #If you don't have the package, install it
+    import pip
+    pip.main(['install', '--user', 'contextlib'])
+    from contextlib import redirect_stdout
 import io
-import TableLamp.src.Lightbulb.Lightbulb as lb
-import TableLamp.src.Button.PushButton as pb
-import TableLamp.src.Button.Button as bu
+try:
+    import TableLamp.src.Lightbulb.Lightbulb as lb
+    import TableLamp.src.Button.PushButton as pb
+    import TableLamp.src.Button.Button as bu
+except ImportError:
+    print("Please make sure you are running tests.py from the test folder")
+
 
 class Tests(ut.TestCase):
 
