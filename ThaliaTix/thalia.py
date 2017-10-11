@@ -1,9 +1,10 @@
-from flask import Flask, request
+from flask import Flask, request, status
 import json
 
 app = Flask(__name__)
 #Replace by "database", maybe a conf file
 shows = []
+sections = []
 #Replace by reading a conf file
 wid = 0
 sid = 0
@@ -27,22 +28,53 @@ def viewOrCreateShow():
     global wid
     if request.method == 'GET':
         return shows
-    else:
+    if request.method == 'POST':
         payload = request.get_json(force=True)
         if checkData(payload, 'POSTshow'):
             wid +=1
             dictpayload = json.loads(payload)
             dictpayload["wid"] = str(wid)
             shows.append(dictpayload)
-            return json.dumps({'wid': str(wid)})
+            return json.dumps({'wid': str(wid)}), status.HTTP_200_OK
 
 
 @app.route('/shows/<wid>', methods=['GET', 'PUT', 'DELETE'])
 def editShow(wid):
+    if request.method == 'GET':
+        for dict in shows:
+            if dict["wid"] == str(wid):
+                return json.dumps(dict), status.HTTP_200_OK
+        return status.HTTP_404_NOT_FOUND
+    if request.method == 'PUT':
+        for dict in shows:
+            if dict["wid"] == str(wid):
+                shows.remove(dict)
+                payload = request.get_json(force=True)
+                if checkData(payload, 'POSTshow'):
+                    dictpayload = json.loads(payload)
+                    dictpayload["wid"] = str(wid)
+                    shows.append(dictpayload)
+                    return status.HTTP_200_OK
+        return status.HTTP_404_NOT_FOUND
+    if request.method == 'DELETE':
+        for dict in shows:
+            if dict["wid"] == wid:
+                shows.remove(dict)
 
 @app.route('/shows/<wid>/sections', methods=['GET'])
-def viewSections(wid):
-
+def viewAllSections(wid):
+    
+@app.route('/shows/<wid>/sections/<sid>', methods=['GET'])
+def viewSections(wid, sid):
+    showdict = {}
+    for dict in shows:
+        if dict["wid"] == str(wid):
+            showdict = dict
+    for dict in sections:
+        if dict["section"] == str(sid): #Possible mistake
+            if not showdict == {}:
+                return {**showdict, **dict}, status.HTTP_200_OK
+    return status.HTTP_404_NOT_FOUND
 
 ######### SEATING #########
 @app.route('/seating', methods=['POST'])
