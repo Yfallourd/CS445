@@ -45,9 +45,9 @@ def viewOrCreateShow():
         if checkData(payload, 'POSTshow'):
             wid +=1
             dictpayload = json.loads(payload)
-            dictpayload["wid"] = str(wid)
+            dictpayload["wid"] = "wid"+str(wid)
             shows.append(dictpayload)
-            return json.dumps({'wid': str(wid)}), status.HTTP_200_OK
+            return json.dumps({'wid': "wid"+str(wid)}), status.HTTP_200_OK
 
 
 @app.route('/shows/<wid>', methods=['GET', 'PUT', 'DELETE'])
@@ -58,35 +58,35 @@ def editShow(wid):
                 return json.dumps(dict), status.HTTP_200_OK
         return status.HTTP_404_NOT_FOUND
     if request.method == 'PUT':
-        for dict in shows:
-            if dict["wid"] == str(wid):
+        for dic in shows:
+            if dic["wid"] == str(wid):
                 payload = request.get_json(force=True)
                 if checkData(payload, 'POSTshow'):
-                    shows.remove(dict)
+                    shows.remove(dic)
                     dictpayload = json.loads(payload)
                     dictpayload["wid"] = str(wid)
                     shows.append(dictpayload)
                     return status.HTTP_200_OK
         return status.HTTP_404_NOT_FOUND
     if request.method == 'DELETE':
-        for dict in shows:
-            if dict["wid"] == wid:
-                shows.remove(dict)
+        for dic in shows:
+            if dic["wid"] == str(wid):
+                shows.remove(dic)
 
 @app.route('/shows/<wid>/sections', methods=['GET'])
-def viewAllSections(wid):
-    return sections
+def viewAllSectionsForShow(wid):
+    return json.dumps(sections)
 
 @app.route('/shows/<wid>/sections/<sid>', methods=['GET'])
 def viewSections(wid, sid):
     showdict = {}
-    for dict in shows:
-        if dict["wid"] == str(wid):
-            showdict = dict
-    for dict in sections:
-        if dict["section"] == str(sid): # Gotta add the seating when done
+    for dic in shows:
+        if dic["wid"] == str(wid):
+            showdict = dic
+    for dic in sections:
+        if dic["section"] == str(sid): # Gotta add the seating when done
             if not showdict == {}:
-                return {**showdict, **dict}, status.HTTP_200_OK
+                return {**showdict, **dic}, status.HTTP_200_OK
     return status.HTTP_404_NOT_FOUND
 
 @app.route('/shows/<wid>/donations', methods=['POST'])
@@ -97,12 +97,11 @@ def subscribeToDonations(wid):
         if checkData(payload, 'POSTshow'):  # Not the right arg ofc
             did += 1
             dictpayload = json.loads(payload)
-            dictpayload["did"] = str(did)
+            dictpayload["did"] = "did"+str(did)
             dictpayload["status"] = "pending"
             dictpayload["tickets"] = []
             donations.append(dictpayload)
-            resp = {}
-            resp["did"] = str(did)
+            resp = {"did": "did"+str(did)}
             return json.dumps(resp), status.HTTP_201_CREATED
         else:
             return status.HTTP_400_BAD_REQUEST
@@ -118,7 +117,7 @@ def viewDonationRequests(wid, did):
 @app.route('/seating', methods=['POST', 'GET'])
 def createSection():
     if request.method == 'GET':
-        if 'show' in request.args:  # Check for valid data, to do
+        if "show" in request.args:
             seats = []
             count = 0
             startingseat = 1
@@ -168,7 +167,14 @@ def createSection():
                     respdict = {**resp, **respdict}  # Rows and shit à gérer
                     return respdict, status.HTTP_200_OK
             return status.HTTP_404_NOT_FOUND
-
+        else:
+            resp = []
+            temp = {}
+            for each in sections:
+                temp = each
+                temp.pop("seating")
+                resp.append(temp)
+            return resp, status.HTTP_200_OK
 
     if request.method == 'POST':
         global sid
@@ -177,10 +183,10 @@ def createSection():
             with lock:
                 sid +=1
                 dictpayload = json.loads(payload)
-                dictpayload["sid"] = str(sid)
+                dictpayload["sid"] = "sid"+str(sid)
                 sections.append(dictpayload)
                 resp = {}
-                resp["sid"] = str(sid)
+                resp["sid"] = "sid"+str(sid)
                 return json.dumps(resp), status.HTTP_201_CREATED
         else:
             return status.HTTP_400_BAD_REQUEST
@@ -245,8 +251,8 @@ def viewOrCreateOrders():
         return orders, status.HTTP_200_OK
     if request.method == 'POST':
         global oid
-        global tid
-        global cid
+        #global tid
+        #global cid
         price = ""
         resptickets = []
         payload = request.get_json(Force=True)
@@ -265,7 +271,7 @@ def viewOrCreateOrders():
                                 price = section["price"]
                 for i in range(quantity):
                     resptickets.append(createTicket(price, dictpayload["sid"], dictpayload["seats"][i]["cid"],
-                                                    oid, dictpayload["wid"], dictpayload["patron_info"],
+                                                    "oid"+str(oid), dictpayload["wid"], dictpayload["patron_info"],
                                                     resp["show_info"]))
                 # TO DO : Build order in dictpayload, build response in resp, manage ticket creation
                 dateordered = strftime("%Y-%m-%d %H:%M:%S", gmtime())
@@ -274,7 +280,7 @@ def viewOrCreateOrders():
                 dictpayload["number_of_tickets"] = quantity
                 dictpayload.pop("seats", None)
                 dictpayload.pop("sid", None)
-                resp["oid"] = str(oid)
+                resp["oid"] = "oid"+str(oid)
                 dictpayload = {**dictpayload, **resp}
                 orders.append(dictpayload)
                 resp["date_ordered"] = dateordered
@@ -327,6 +333,8 @@ def donateTickets():
 @app.route('/tickets/<tid>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def viewOrEditTickets(tid):
     if request.method == 'GET':
+        global oid
+        global cid
         resp = {}
         for each in tickets:
             if each["tid"] == tid:
@@ -444,3 +452,21 @@ def createTicket(price, sid, cid, oid, wid, patron_info, show_info):
                 "show_info": show_info}
     tickets.append(tickdict)
     return tid
+
+def init():
+    print('init')
+    global sid
+    #seating
+    file = open("project-test-theatre-seating.json", "r")
+    dic = json.loads(file.read())
+    print(dic)
+    for each in dic:
+        sid += 1
+        temp = {"sid": "sid"+str(sid)}
+        temp = {**temp, **each}
+        sections.append(temp)
+        print("sid is :" + str(sid))
+
+if __name__ == "__main__":
+    init()
+    app.run(debug=True)
