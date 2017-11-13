@@ -14,8 +14,8 @@
       <file leaf-file-name="thalia.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/thalia.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="305">
-              <caret line="250" column="41" lean-forward="true" selection-start-line="250" selection-start-column="41" selection-end-line="250" selection-end-column="41" />
+            <state relative-caret-position="503">
+              <caret line="428" column="54" lean-forward="false" selection-start-line="428" selection-start-column="54" selection-end-line="428" selection-end-column="54" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -35,6 +35,10 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>/sect</find>
+      <find>length</find>
+      <find>request.args</find>
+      <find>request.args)</find>
+      <find>'start_date' in request.args) &amp; ('end_date' in request.args)</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -162,8 +166,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/thalia.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="305">
-          <caret line="250" column="41" lean-forward="true" selection-start-line="250" selection-start-column="41" selection-end-line="250" selection-end-column="41" />
+        <state relative-caret-position="503">
+          <caret line="428" column="54" lean-forward="false" selection-start-line="428" selection-start-column="54" selection-end-line="428" selection-end-column="54" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
           </folding>
