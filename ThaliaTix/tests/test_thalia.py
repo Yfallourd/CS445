@@ -142,8 +142,81 @@ class ThaliaTestCase(unittest.TestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertTrue(len(json.loads(rv.data.decode())) != 0)
 
+    def test_getticket(self):
+        self.dataRequest("/shows", "thalia/JSON_files/test-shows-create-POST-1.json", "post")
+        rv = self.dataRequest("/orders", "thalia/JSON_files/test-orders-create-request-POST-1.json", "post")
 
+        rv = self.app.get('/tickets/1')
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue(len(json.loads(rv.data.decode())) != 0)
 
+    def test_postticket(self):
+        self.dataRequest("/shows", "thalia/JSON_files/test-shows-create-POST-1.json", "post")
+        rv = self.dataRequest("/orders", "thalia/JSON_files/test-orders-create-request-POST-1.json", "post")
+
+        rv = self.app.post('/tickets/1', data=json.dumps("{\"tid\": \"1\",\"status\": \"used\"}").encode())
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue(len(json.loads(rv.data.decode())) != 0)
+
+    def test_donateticket(self):
+        rv = self.dataRequest("/shows", "thalia/JSON_files/test-shows-create-POST-1.json", "post")
+
+        rv = self.dataRequest("/shows/1/donations", "thalia/JSON_files/test-shows-subscribe-POST-1.json",
+                              "post")
+        rv = self.dataRequest("/orders", "thalia/JSON_files/test-orders-create-request-POST-1.json", "post")
+
+        rv = self.dataRequest('/tickets/donations', "thalia/JSON_files/test-tickets-donate-ticket-POST.json", "post")
+        self.assertEqual(rv.status_code, 201)
+
+    def test_reports(self):
+        rv = self.app.get('/reports')
+        self.assertEqual(rv.status_code, 200)
+
+        rv = self.app.get('/reports/1')
+        self.assertEqual(rv.status_code, 404)
+
+    def test_ordersearch(self):
+        rv = self.dataRequest("/shows", "thalia/JSON_files/test-shows-create-POST-1.json", "post")
+
+        rv = self.dataRequest("/orders", "thalia/JSON_files/test-orders-create-request-POST-1.json", "post")
+
+        rv = self.app.get("/search", query_string={"topic": "order", "key": "John Doe"})
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue(len(json.loads(rv.data.decode())) == 1)
+
+    def test_showsearch(self):
+        rv = self.dataRequest("/shows", "thalia/JSON_files/test-shows-create-POST-1.json", "post")
+
+        rv = self.dataRequest("/orders", "thalia/JSON_files/test-orders-create-request-POST-1.json", "post")
+
+        rv = self.app.get("/search", query_string={"topic": "show", "key": "King Lear"})
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue(len(json.loads(rv.data.decode())) == 1)
+
+    def test_checkseat(self):
+        self.assertTrue(thalia.checkSeat({"row": "1", "seats": ["1", "2", "3"]}, 1, "1"))
+
+    def test_sellseat(self):
+        thalia.sellSeat("1")
+        tempseat = {}
+        for seat in thalia.seats:
+            if seat["cid"] == "1":
+                tempseat = seat
+        self.assertEqual(tempseat["status"], "sold")
+
+    def test_createticket(self):
+        thalia.createTicket(1, "1", "1", "1", "1", {}, {})
+        self.assertEqual(len(thalia.tickets), 1)
+        self.assertEqual(thalia.tid, 1)
+
+    def test_init(self):
+        with thalia.app.app_context():
+            thalia.init("thalia/JSON_files/project-test-theatre-seating.json")
+        self.assertTrue(len(thalia.seats) != 0)
+
+    def test_reset(self):
+        rv = self.app.get('/reset')
+        self.assertEqual(rv.status_code, 200)
 
 
     def dataRequest(self, endpoint, filepath, type):

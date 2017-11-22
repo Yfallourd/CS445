@@ -1,0 +1,17 @@
+{
+	"wid": "1",
+	"sid": "2",
+	"seats": [{
+			"cid": "17",
+			"seat": "5"
+		}
+	],
+	"patron_info": {
+    			"name": "King maximilian",
+    			"phone": "312-567-3000",
+    			"email": "king.maximilian@example.com",
+    			"billing_address": "10 West 32nd ST, Chicago IL 60616",
+    			"cc_number": "373412345670012",
+    			"cc_expiration_date": "11/19"
+    		}
+}

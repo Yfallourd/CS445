@@ -11,11 +11,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="thalia.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="thalia.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/thalia/thalia.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="183">
-              <caret line="301" column="55" lean-forward="true" selection-start-line="301" selection-start-column="55" selection-end-line="301" selection-end-column="55" />
+            <state relative-caret-position="72">
+              <caret line="4" column="26" lean-forward="false" selection-start-line="4" selection-start-column="26" selection-end-line="4" selection-end-column="26" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -23,11 +23,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_thalia.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="test_thalia.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tests/test_thalia.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="169">
-              <caret line="138" column="0" lean-forward="true" selection-start-line="138" selection-start-column="0" selection-end-line="138" selection-end-column="0" />
+            <state relative-caret-position="29">
+              <caret line="212" column="2" lean-forward="false" selection-start-line="212" selection-start-column="2" selection-end-line="212" selection-end-column="2" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -64,6 +64,11 @@
       <find>DELETE</find>
       <find>time</find>
       <find>print(</find>
+      <find>payload</find>
+      <find>viewO</find>
+      <find>viewOrE</find>
+      <find>request.get_jso</find>
+      <find>/repor</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;wid&quot;+str(wid)</replace>
@@ -76,8 +81,8 @@
         <option value="$PROJECT_DIR$/thalia.py" />
         <option value="$PROJECT_DIR$/tests/thalia_tests.py" />
         <option value="$PROJECT_DIR$/__init__.py" />
-        <option value="$PROJECT_DIR$/tests/test_thalia.py" />
         <option value="$PROJECT_DIR$/thalia/thalia.py" />
+        <option value="$PROJECT_DIR$/tests/test_thalia.py" />
       </list>
     </option>
   </component>
@@ -324,20 +329,20 @@
     <entry file="file://$PROJECT_DIR$/thalia.py" />
     <entry file="file://$PROJECT_DIR$/tests/thalia_tests.py" />
     <entry file="file://$PROJECT_DIR$/__init__.py" />
-    <entry file="file://$PROJECT_DIR$/thalia/thalia.py">
+    <entry file="file://$PROJECT_DIR$/tests/test_thalia.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="301" column="55" lean-forward="true" selection-start-line="301" selection-start-column="55" selection-end-line="301" selection-end-column="55" />
+        <state relative-caret-position="29">
+          <caret line="212" column="2" lean-forward="false" selection-start-line="212" selection-start-column="2" selection-end-line="212" selection-end-column="2" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_thalia.py">
+    <entry file="file://$PROJECT_DIR$/thalia/thalia.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="138" column="0" lean-forward="true" selection-start-line="138" selection-start-column="0" selection-end-line="138" selection-end-column="0" />
+        <state relative-caret-position="72">
+          <caret line="4" column="26" lean-forward="false" selection-start-line="4" selection-start-column="26" selection-end-line="4" selection-end-column="26" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
           </folding>
