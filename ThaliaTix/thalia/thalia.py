@@ -3,6 +3,7 @@ from flask_api import FlaskAPI, status
 import json
 from time import strftime, gmtime
 from threading import Lock
+from ast import literal_eval
 
 app = FlaskAPI(__name__)
 
@@ -34,7 +35,7 @@ def checkData(payload, expected):
 
 
 ######### SHOWS #########
-@app.route('/shows', methods=['GET', 'POST'])
+@app.route('/thalia/shows', methods=['GET', 'POST'])
 def viewOrCreateShow():
     global wid
     if request.method == 'GET':
@@ -52,13 +53,13 @@ def viewOrCreateShow():
             return json.dumps({'wid': str(wid)}), status.HTTP_201_CREATED
 
 
-@app.route('/shows/<wid>', methods=['GET', 'PUT', 'DELETE'])
+@app.route('/thalia/shows/<wid>', methods=['GET', 'PUT', 'DELETE'])
 def editShow(wid):
     if request.method == 'GET':
         for dict in shows:
             if dict["wid"] == str(wid):
                 return json.dumps(dict), status.HTTP_200_OK
-        return "", status.HTTP_404_NOT_FOUND
+        return json.dumps(''), status.HTTP_404_NOT_FOUND
     if request.method == 'PUT':
         for dic in shows:
             if dic["wid"] == str(wid):
@@ -68,16 +69,16 @@ def editShow(wid):
                     dictpayload = payload
                     dictpayload["wid"] = str(wid)
                     shows.append(dictpayload)
-                    return "", status.HTTP_200_OK
-        return "", status.HTTP_404_NOT_FOUND
+                    return json.dumps(''), status.HTTP_200_OK
+        return json.dumps(''), status.HTTP_404_NOT_FOUND
     if request.method == 'DELETE':
         for dic in shows:
             if dic["wid"] == str(wid):
                 shows.remove(dic)
-        return "", status.HTTP_200_OK
+        return json.dumps(''), status.HTTP_200_OK
 
 
-@app.route('/shows/<wid>/sections', methods=['GET'])
+@app.route('/thalia/shows/<wid>/sections', methods=['GET'])
 def viewAllSectionsForShow(wid):
     resp = []
     show = {}
@@ -89,11 +90,11 @@ def viewAllSectionsForShow(wid):
             if section["sid"] == each["sid"]:
                 resp.append(section)
     if not resp:
-        return "", status.HTTP_404_NOT_FOUND
+        return json.dumps(''), status.HTTP_404_NOT_FOUND
     return json.dumps(resp), status.HTTP_200_OK
 
 
-@app.route('/shows/<wid>/sections/<sid>', methods=['GET'])
+@app.route('/thalia/shows/<wid>/sections/<sid>', methods=['GET'])
 def viewSections(wid, sid):
     showdict = {}
     tempdic = {}
@@ -116,10 +117,10 @@ def viewSections(wid, sid):
                             templist.append(tempseat)
                     seating["seats"] = templist
                 return json.dumps({**showdict, **tempdic}), status.HTTP_200_OK
-    return "", status.HTTP_404_NOT_FOUND
+    return json.dumps(''), status.HTTP_404_NOT_FOUND
 
 
-@app.route('/shows/<wid>/donations', methods=['POST'])
+@app.route('/thalia/shows/<wid>/donations', methods=['POST'])
 def subscribeToDonations(wid):
     if request.method == 'POST':
         global did
@@ -134,19 +135,19 @@ def subscribeToDonations(wid):
             resp = {"did": str(did)}
             return json.dumps(resp), status.HTTP_201_CREATED
         else:
-            return "", status.HTTP_400_BAD_REQUEST
+            return json.dumps(''), status.HTTP_400_BAD_REQUEST
 
 
-@app.route('/shows/<wid>/donations/<did>', methods=['GET'])
+@app.route('/thalia/shows/<wid>/donations/<did>', methods=['GET'])
 def viewDonationRequests(wid, did):
     for each in donations:
         if (each["wid"] == str(wid)) & (each["did"] == str(did)):
             return json.dumps(each), status.HTTP_200_OK
-    return "", status.HTTP_404_NOT_FOUND
+    return json.dumps(''), status.HTTP_404_NOT_FOUND
 
 
 ######### SEATING #########
-@app.route('/seating', methods=['POST', 'GET'])
+@app.route('/thalia/seating', methods=['POST', 'GET'])
 def createSection():
     if request.method == 'GET':
         if "show" in request.args:
@@ -171,7 +172,10 @@ def createSection():
                             if seat["cid"] == request.args["starting_seat_id"]:
                                 for x in seating:
                                     if x["row"] == seat["row"]:
-                                        startingseat = x["seats"].index(seat["seat"])+1
+                                        tlist = []
+                                        for el in x["seats"]:
+                                            tlist.append(el["seat"])
+                                        startingseat = tlist.index(seat["seat"])+1
                                     else:
                                         seating.remove(x)
                     else:
@@ -182,7 +186,7 @@ def createSection():
                         count = 0
                         i = int(startingseat)
                         while checkSeat(row, i, request.args["section"]):
-                            freeseats.append(str(row["seats"][i-1])+"-"+row["row"])
+                            freeseats.append(str(row["seats"][i-1]["seat"])+"-"+row["row"])
                             count += 1
                             i += 1
                             if count >= int(request.args["count"]):
@@ -214,8 +218,9 @@ def createSection():
                     for info in seatinginfo:
                         if info["sid"] == request.args["section"]:
                             respdict["total_amount"] = int(info["price"])*count
+                    print(respdict)
                     return json.dumps(respdict), status.HTTP_200_OK
-            return "", status.HTTP_404_NOT_FOUND
+            return json.dumps(''), status.HTTP_404_NOT_FOUND
         else:
             resp = []
             for each in sections:
@@ -238,16 +243,16 @@ def createSection():
                 resp["sid"] = str(sid)
                 return json.dumps(resp), status.HTTP_201_CREATED
         else:
-            return "", status.HTTP_400_BAD_REQUEST
+            return json.dumps(''), status.HTTP_400_BAD_REQUEST
 
 
-@app.route('/seating/<sid>', methods=['GET', 'PUT', 'DELETE'])
+@app.route('/thalia/seating/<sid>', methods=['GET', 'PUT', 'DELETE'])
 def editOrRequestSections(sid):
     if request.method == 'GET':
         for each in sections:
             if each["sid"] == str(sid):
                 return json.dumps(each), status.HTTP_200_OK
-        return "", status.HTTP_404_NOT_FOUND
+        return json.dumps(''), status.HTTP_404_NOT_FOUND
     if request.method == 'PUT':
         for each in sections:
             if each["sid"] == str(sid):
@@ -257,17 +262,17 @@ def editOrRequestSections(sid):
                     dictpayload = payload
                     dictpayload["sid"] = str(sid)
                     sections.append(dictpayload)
-                    return "", status.HTTP_200_OK
-        return "", status.HTTP_404_NOT_FOUND
+                    return json.dumps(''), status.HTTP_200_OK
+        return json.dumps(''), status.HTTP_404_NOT_FOUND
     if request.method == 'DELETE':
         for each in sections:
             if each["sid"] == str(sid):
                 sections.remove(each)
-                return "", status.HTTP_200_OK
-        return "", status.HTTP_404_NOT_FOUND
+                return json.dumps(''), status.HTTP_200_OK
+        return json.dumps(''), status.HTTP_404_NOT_FOUND
 
 
-@app.route('/sections')
+@app.route('/thalia/sections')
 def viewAllSections():
     resp = []
     for each in sections:
@@ -278,16 +283,16 @@ def viewAllSections():
     return json.dumps(resp), status.HTTP_200_OK
 
 
-@app.route('/sections/<sid>')
+@app.route('/thalia/sections/<sid>')
 def viewSection(sid):
     for each in sections:
         if each["sid"] == str(sid):
             return json.dumps(each), status.HTTP_200_OK
-    return "", status.HTTP_404_NOT_FOUND
+    return json.dumps(''), status.HTTP_404_NOT_FOUND
 
 
 ######### ORDERS #########
-@app.route('/orders', methods=['GET', 'PUT', 'POST'])
+@app.route('/thalia/orders', methods=['GET', 'PUT', 'POST'])
 def viewOrCreateOrders():
     if request.method == 'GET':
         if ('start_date' in request.args) & ('end_date' in request.args):
@@ -305,7 +310,7 @@ def viewOrCreateOrders():
         global oid
         # global tid
         # global cid
-        price = ""
+        price = 0
         resptickets = []
         payload = request.get_json(force=True)
         if checkData(payload, 'POSTshow'):  # Not the right arg
@@ -342,10 +347,10 @@ def viewOrCreateOrders():
                 resp["order_amount"] = quantity * int(price)
                 return json.dumps(resp), status.HTTP_201_CREATED
         else:
-            return "", status.HTTP_400_BAD_REQUEST
+            return json.dumps(''), status.HTTP_400_BAD_REQUEST
 
 
-@app.route('/orders/<oid>', methods=['GET', 'PUT', 'DELETE'])
+@app.route('/thalia/orders/<oid>', methods=['GET', 'PUT', 'DELETE'])
 def editOrders(oid):
     if request.method == 'GET':
         temptick = []
@@ -356,16 +361,16 @@ def editOrders(oid):
                         temptick.append({"tid": ticket["tid"], "status": ticket["status"]})
                 each["tickets"] = temptick
                 return json.dumps(each), status.HTTP_200_OK
-        return "", status.HTTP_404_NOT_FOUND
+        return json.dumps(''), status.HTTP_404_NOT_FOUND
 
 
 ######### TICKETS #########
-@app.route('/tickets')
+@app.route('/thalia/tickets')
 def viewAllTickets():
     return json.dumps(tickets), status.HTTP_200_OK
 
 
-@app.route('/tickets/donations', methods=['POST'])
+@app.route('/thalia/tickets/donations', methods=['POST'])
 def donateTickets():
     if request.method == 'POST':
         temptick = []
@@ -395,10 +400,10 @@ def donateTickets():
                         isdonated = True
 
                             # Create order ? Hmmm
-        return "", status.HTTP_201_CREATED
+        return json.dumps(''), status.HTTP_201_CREATED
 
 
-@app.route('/tickets/<tid>', methods=['GET', 'POST', 'PUT', 'DELETE'])
+@app.route('/thalia/tickets/<tid>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def viewOrEditTickets(tid):
     if request.method == 'GET':
         global oid
@@ -408,7 +413,7 @@ def viewOrEditTickets(tid):
             if each["tid"] == tid:
                 resp = each.copy()
         if resp == {}:
-            return "", status.HTTP_404_NOT_FOUND
+            return json.dumps(''), status.HTTP_404_NOT_FOUND
         seatingdict = {}
         for seat in seats:
             if seat["cid"] == resp["cid"]:
@@ -426,11 +431,11 @@ def viewOrEditTickets(tid):
                 if each["tid"] == tid:
                     each["status"] = "used"
             return json.dumps({"tid": tid, "status": "used"}), status.HTTP_200_OK
-        return "", status.HTTP_400_BAD_REQUEST
+        return json.dumps(''), status.HTTP_400_BAD_REQUEST
 
 
 ######### REPORTS #########
-@app.route('/reports')
+@app.route('/thalia/reports')
 def viewAllReports():
     resp = []
     for each in reports:
@@ -438,7 +443,7 @@ def viewAllReports():
     return json.dumps(resp), status.HTTP_200_OK
 
 
-@app.route('/reports/<mrid>')
+@app.route('/thalia/reports/<mrid>')
 def viewReport(mrid):
     if "show" in request.args:
         wid = request.args.get("show")
@@ -447,12 +452,12 @@ def viewReport(mrid):
             if each["mrid"] == str(mrid):
                 report = each.copy()
         if report == {}:
-            return "", status.HTTP_404_NOT_FOUND
+            return json.dumps(''), status.HTTP_404_NOT_FOUND
         for show in report["shows"]:
             if not show["wid"] == wid:
                 report["shows"].pop(show)
         if len(report["shows"]) == 0:
-            return "", status.HTTP_404_NOT_FOUND
+            return json.dumps(''), status.HTTP_404_NOT_FOUND
         return json.dumps(report), status.HTTP_200_OK
     elif ('start_date' in request.args) & ('end_date' in request.args):
         report = {}
@@ -464,28 +469,28 @@ def viewReport(mrid):
             if each["mrid"] == str(mrid):
                 report = each.copy()
         if report == {}:
-            return "", status.HTTP_404_NOT_FOUND
+            return json.dumps(''), status.HTTP_404_NOT_FOUND
         for show in report["shows"]:
             if not sdate < show["show_info"]["date"] < edate:
                 report["shows"].pop(show)
         if len(report["shows"]) == 0:
-            return "", status.HTTP_404_NOT_FOUND
+            return json.dumps(''), status.HTTP_404_NOT_FOUND
         return json.dumps(report), status.HTTP_200_OK
     else:
         for each in reports:
             if each["mrid"] == str(mrid):
                 return json.dumps(each), status.HTTP_200_OK
-        return "", status.HTTP_404_NOT_FOUND
+        return json.dumps(''), status.HTTP_404_NOT_FOUND
 
 
 ######### SEARCH #########
-@app.route('/search')
+@app.route('/thalia/search')
 def search():
     if ("topic" in request.args) & ("key" in request.args):
         resp = {}
         results = []
         if not (request.args["topic"] == "show") | (request.args["topic"] == "order"):
-            return "", status.HTTP_400_BAD_REQUEST
+            return json.dumps(''), status.HTTP_400_BAD_REQUEST
 
         if request.args["topic"] == "show":
             for each in shows:
@@ -508,7 +513,7 @@ def checkSeat(seatlist, number, sid):
         for seat in seats:
             if (seat["sid"] == str(sid)) \
                     & (seat["row"] == seatlist["row"]) \
-                    & (seatlist["seats"][number-1] == seat["seat"]):
+                    & (seatlist["seats"][number-1]["seat"] == seat["seat"]):
                 if seat["status"] == "available":
                     return True
         return False
@@ -550,7 +555,7 @@ def init(filename):
                 seats.append(
                     {"sid": each["sid"], "row": seating["row"], "cid": str(cid), "status": "available", "seat": seat})
 
-@app.route('/reset')
+@app.route('/thalia/reset')
 def reset():
     global wid, sid, did, mrid, oid, tid, cid
     shows.clear()
@@ -567,7 +572,7 @@ def reset():
     oid = 0  # Orders
     tid = 0  # Tickets
     cid = 0  # Seats
-    return "", status.HTTP_200_OK
+    return json.dumps(''), status.HTTP_200_OK
 
 if __name__ == "__main__":
     init("JSON_files/project-test-theatre-seating.json")
