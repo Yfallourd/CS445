@@ -14,11 +14,12 @@
       <file leaf-file-name="thalia.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/thalia.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="287">
-              <caret line="176" column="43" lean-forward="false" selection-start-line="176" selection-start-column="43" selection-end-line="176" selection-end-column="43" />
+            <state relative-caret-position="140">
+              <caret line="179" column="87" lean-forward="false" selection-start-line="179" selection-start-column="87" selection-end-line="179" selection-end-column="87" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
-                <element signature="e#3955#6315#0" expanded="false" />
+                <element signature="e#8523#8772#0" expanded="false" />
+                <element signature="e#8815#9316#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -41,6 +42,9 @@
       <find>request.args)</find>
       <find>'start_date' in request.args) &amp; ('end_date' in request.args)</find>
       <find>str(wid)</find>
+      <find>id&quot;+str</find>
+      <find>cid +=</find>
+      <find>price</find>
     </findStrings>
     <replaceStrings>
       <replace>&quot;wid&quot;+str(wid)</replace>
@@ -165,7 +169,8 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
-            <element signature="e#3955#6315#0" expanded="false" />
+            <element signature="e#8523#8772#0" expanded="false" />
+            <element signature="e#8815#9316#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -176,18 +181,20 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
-            <element signature="e#3955#6315#0" expanded="false" />
+            <element signature="e#8523#8772#0" expanded="false" />
+            <element signature="e#8815#9316#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/thalia.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="176" column="43" lean-forward="false" selection-start-line="176" selection-start-column="43" selection-end-line="176" selection-end-column="43" />
+        <state relative-caret-position="140">
+          <caret line="179" column="87" lean-forward="false" selection-start-line="179" selection-start-column="87" selection-end-line="179" selection-end-column="87" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
-            <element signature="e#3955#6315#0" expanded="false" />
+            <element signature="e#8523#8772#0" expanded="false" />
+            <element signature="e#8815#9316#0" expanded="false" />
           </folding>
         </state>
       </provider>
