@@ -74,6 +74,7 @@ def editShow(wid):
         for dic in shows:
             if dic["wid"] == str(wid):
                 shows.remove(dic)
+        return "", status.HTTP_200_OK
 
 
 @app.route('/shows/<wid>/sections', methods=['GET'])
@@ -294,11 +295,8 @@ def viewOrCreateOrders():
             sdate = str(start)[0:4] + "-" + str(start)[4:6] + "-" + str(start)[6:8]
             end = request.args.get('end_date')
             edate = str(end)[0:4] + "-" + str(end)[4:6] + "-" + str(end)[6:8]
-            print(edate)
-            print(sdate)
             resp = []
             for each in orders:
-                print("date ordered :"+each["date_ordered"][0:10])
                 if sdate <= each["date_ordered"][0:10] <= edate:
                     resp.append(each)
             return json.dumps(resp), status.HTTP_200_OK
@@ -535,12 +533,11 @@ def createTicket(price, sid, cid, oid, wid, patron_info, show_info):
     return tid
 
 
-def init():
-    print('init')
+def init(filename):
     global sid
     global cid
     # seating
-    file = open("JSON_files/project-test-theatre-seating.json", "r")
+    file = open(filename, "r")
     dic = json.loads(file.read())
     file.close()
     for each in dic:
@@ -556,7 +553,25 @@ def init():
                 seats.append(
                     {"sid": each["sid"], "row": seating["row"], "cid": str(cid), "status": "available", "seat": seat})
 
+@app.route('/reset')
+def reset():
+    global wid, sid, did, mrid, oid, tid, cid
+    shows.clear()
+    orders.clear()
+    donations.clear()
+    seats.clear()
+    sections.clear()
+    tickets.clear()
+    reports.clear()
+    wid = 0  # Shows
+    sid = 0  # Sections
+    did = 0  # Donations
+    mrid = 0  # Reports
+    oid = 0  # Orders
+    tid = 0  # Tickets
+    cid = 0  # Seats
+    return "", status.HTTP_200_OK
 
 if __name__ == "__main__":
-    init()
+    init("JSON_files/project-test-theatre-seating.json")
     app.run(port=8080, debug=True)
