@@ -4,19 +4,19 @@ import json
 from time import strftime, gmtime
 from threading import Lock
 
-# Remember to bind headers to responses !
 app = FlaskAPI(__name__)
 
 lock = Lock()
+
 # Replace by "database", maybe a conf file
 shows = []
 sections = []
 seats = []
-donations = []  # Donation requests
-donated = []  # Donated tickets
+donations = []
 orders = []
 tickets = []
 reports = []
+
 # Replace by reading a conf file
 wid = 0  # Shows
 sid = 0  # Sections
@@ -29,14 +29,7 @@ cid = 0  # Seats
 
 def checkData(payload, expected):
     return True
-    # if expected == 'POSTshow':
-    #     data = payload
-    #     if not (len(data) == 2)|(len(data["show_info"]) == 4):
-    #         return False
-    #     for each in data["seating_info"]:
-    #         if not len(each) == 2:
-    #             return False
-    #     return True
+    # This is where we'd check input
     # Rest of the checking will be regex matching
 
 
@@ -56,7 +49,7 @@ def viewOrCreateShow():
             dictpayload = payload
             dictpayload["wid"] = str(wid)
             shows.append(dictpayload)
-            return json.dumps({'wid': str(wid)}), status.HTTP_200_OK
+            return json.dumps({'wid': str(wid)}), status.HTTP_201_CREATED
 
 
 @app.route('/shows/<wid>', methods=['GET', 'PUT', 'DELETE'])
@@ -76,7 +69,7 @@ def editShow(wid):
                     dictpayload["wid"] = str(wid)
                     shows.append(dictpayload)
                     return "", status.HTTP_200_OK
-        return status.HTTP_404_NOT_FOUND
+        return "", status.HTTP_404_NOT_FOUND
     if request.method == 'DELETE':
         for dic in shows:
             if dic["wid"] == str(wid):
@@ -89,7 +82,7 @@ def viewAllSectionsForShow(wid):
     show = {}
     for each in shows:
         if each["wid"] == wid:
-            show = each
+            show = each.copy()
     for section in sections:
         for each in show["seating_info"]:
             if section["sid"] == each["sid"]:
@@ -105,7 +98,7 @@ def viewSections(wid, sid):
     tempdic = {}
     for dic in shows:
         if dic["wid"] == str(wid):
-            showdict = dic
+            showdict = dic.copy()
     for each in showdict["seating_info"]:
         if each["sid"] == str(sid):
             showdict["price"] = each["price"]
@@ -113,7 +106,7 @@ def viewSections(wid, sid):
     for dic in sections:
         if dic["sid"] == str(sid):  # Gotta add the seating when done
             if not showdict == {}:
-                tempdic = dic
+                tempdic = dic.copy()
                 for seating in tempdic["seating"]:
                     templist = []
                     for seat in seats:
@@ -121,7 +114,7 @@ def viewSections(wid, sid):
                             tempseat = {"seat": seat["seat"], "status": seat["status"], "cid": seat["cid"]}
                             templist.append(tempseat)
                     seating["seats"] = templist
-                return {**showdict, **tempdic}, status.HTTP_200_OK
+                return json.dumps({**showdict, **tempdic}), status.HTTP_200_OK
     return "", status.HTTP_404_NOT_FOUND
 
 
@@ -129,10 +122,10 @@ def viewSections(wid, sid):
 def subscribeToDonations(wid):
     if request.method == 'POST':
         global did
-        payload = request.get_json(Force=True)
+        payload = request.get_json(force=True)
         if checkData(payload, 'POSTshow'):  # Not the right arg ofc
             did += 1
-            dictpayload = json.loads(payload)
+            dictpayload = payload
             dictpayload["did"] = str(did)
             dictpayload["status"] = "pending"
             dictpayload["tickets"] = []
@@ -140,15 +133,15 @@ def subscribeToDonations(wid):
             resp = {"did": str(did)}
             return json.dumps(resp), status.HTTP_201_CREATED
         else:
-            return status.HTTP_400_BAD_REQUEST
+            return "", status.HTTP_400_BAD_REQUEST
 
 
 @app.route('/shows/<wid>/donations/<did>', methods=['GET'])
 def viewDonationRequests(wid, did):
     for each in donations:
-        if (each["wid"] == str(wid)) | (each["did"] == str(did)):
-            return each, status.HTTP_200_OK
-    return status.HTTP_404_NOT_FOUND
+        if (each["wid"] == str(wid)) & (each["did"] == str(did)):
+            return json.dumps(each), status.HTTP_200_OK
+    return "", status.HTTP_404_NOT_FOUND
 
 
 ######### SEATING #########
@@ -171,7 +164,7 @@ def createSection():
                     for section in sections:
                         if section["sid"] == str(request.args["section"]):
                             seating = section["seating"]
-                            respdict = {**section, **respdict}
+                            respdict = {**section.copy(), **respdict}
                     if 'starting_seat_id' in request.args:  # A refaire lol
                         for seat in seats:
                             if seat["cid"] == request.args["starting_seat_id"]:
@@ -205,14 +198,14 @@ def createSection():
                                 tempd = {"cid": seat["cid"], "status": seat["status"], "seat": seat["seat"]}
                                 resp.append(tempd)
                                 rownumber = seat["row"]
-                    respdict = {**each, **respdict}
+                    respdict = {**each.copy(), **respdict}
                     if "seating_info" in respdict:
                         respdict.pop("seating_info")
                     if noseats:
                         respdict["status"] = "Error: "+str(request.args["count"])+" contiguous seats not available"
                         respdict["starting_seat_id"] = "1"
                         respdict["seating"] = []
-                        return respdict, status.HTTP_200_OK
+                        return json.dumps(respdict), status.HTTP_200_OK
                     else:
                         respdict["seating"] = [{"row": rownumber, "seats": resp}]
                         respdict["starting_seat_id"] = resp[0]["cid"]
@@ -220,8 +213,8 @@ def createSection():
                     for info in seatinginfo:
                         if info["sid"] == request.args["section"]:
                             respdict["total_amount"] = int(info["price"])*count
-                    return respdict, status.HTTP_200_OK
-            return status.HTTP_404_NOT_FOUND
+                    return json.dumps(respdict), status.HTTP_200_OK
+            return "", status.HTTP_404_NOT_FOUND
         else:
             resp = []
             for each in sections:
@@ -229,22 +222,22 @@ def createSection():
                 temp["sid"] = each["sid"]
                 temp["section_name"] = each["section_name"]
                 resp.append(temp)
-            return resp, status.HTTP_200_OK
+            return json.dumps(resp), status.HTTP_200_OK
 
     if request.method == 'POST':
         global sid
-        payload = request.get_json(Force=True)
+        payload = request.get_json(force=True)
         if checkData(payload, 'POSTshow'):  # Not the right arg
             with lock:
                 sid += 1
-                dictpayload = json.loads(payload)
+                dictpayload = payload
                 dictpayload["sid"] = str(sid)
                 sections.append(dictpayload)
                 resp = {}
                 resp["sid"] = str(sid)
                 return json.dumps(resp), status.HTTP_201_CREATED
         else:
-            return status.HTTP_400_BAD_REQUEST
+            return "", status.HTTP_400_BAD_REQUEST
 
 
 @app.route('/seating/<sid>', methods=['GET', 'PUT', 'DELETE'])
@@ -252,30 +245,30 @@ def editOrRequestSections(sid):
     if request.method == 'GET':
         for each in sections:
             if each["sid"] == str(sid):
-                return each, status.HTTP_200_OK
-        return status.HTTP_404_NOT_FOUND
+                return json.dumps(each), status.HTTP_200_OK
+        return "", status.HTTP_404_NOT_FOUND
     if request.method == 'PUT':
         for each in sections:
             if each["sid"] == str(sid):
-                payload = request.get_json(Force=True)
+                payload = request.get_json(force=True)
                 if checkData(payload, 'POSTshow'):  # Not the right arg
                     sections.remove(each)
-                    dictpayload = json.loads(payload)
+                    dictpayload = payload
                     dictpayload["sid"] = str(sid)
                     sections.append(dictpayload)
-                    return status.HTTP_200_OK
-        return status.HTTP_404_NOT_FOUND
+                    return "", status.HTTP_200_OK
+        return "", status.HTTP_404_NOT_FOUND
     if request.method == 'DELETE':
         for each in sections:
             if each["sid"] == str(sid):
                 sections.remove(each)
-                return status.HTTP_200_OK
-        return status.HTTP_404_NOT_FOUND
+                return "", status.HTTP_200_OK
+        return "", status.HTTP_404_NOT_FOUND
 
 
 @app.route('/sections')
 def viewAllSections():
-    resp = []  # TODO : format seating
+    resp = []
     for each in sections:
         temp = {}
         temp["sid"] = each["sid"]
@@ -289,7 +282,7 @@ def viewSection(sid):
     for each in sections:
         if each["sid"] == str(sid):
             return json.dumps(each), status.HTTP_200_OK
-    return status.HTTP_404_NOT_FOUND
+    return "", status.HTTP_404_NOT_FOUND
 
 
 ######### ORDERS #########
@@ -297,30 +290,34 @@ def viewSection(sid):
 def viewOrCreateOrders():
     if request.method == 'GET':
         if ('start_date' in request.args) & ('end_date' in request.args):
-            # Should regex check values
-            start = list(request.args.get('start_date'))
-            sdate = str(start)[0:3] + "-" + str(start)[4:6] + "-" + str(start)[6:8]
-            end = list(request.args.get('end_date'))
-            edate = str(end)[0:3] + "-" + str(end)[4:6] + "-" + str(end)[6:8]
+            start = request.args.get('start_date')
+            sdate = str(start)[0:4] + "-" + str(start)[4:6] + "-" + str(start)[6:8]
+            end = request.args.get('end_date')
+            edate = str(end)[0:4] + "-" + str(end)[4:6] + "-" + str(end)[6:8]
+            print(edate)
+            print(sdate)
             resp = []
             for each in orders:
-                if sdate < each["date_ordered"] < edate:
+                print("date ordered :"+each["date_ordered"][0:10])
+                if sdate <= each["date_ordered"][0:10] <= edate:
                     resp.append(each)
-            return resp, status.HTTP_200_OK
-        return orders, status.HTTP_200_OK
+            return json.dumps(resp), status.HTTP_200_OK
+        return json.dumps(orders), status.HTTP_200_OK
     if request.method == 'POST':
         global oid
         # global tid
         # global cid
         price = ""
         resptickets = []
-        payload = request.get_json(Force=True)
+        payload = request.get_json(force=True)
         if checkData(payload, 'POSTshow'):  # Not the right arg
             with lock:
                 oid += 1
                 resp = {}
-                dictpayload = json.loads(payload)
+                dictpayload = payload
                 quantity = len(dictpayload["seats"])
+                for seat in dictpayload["seats"]:
+                    sellSeat(seat["cid"])
                 for each in shows:
                     if each["wid"] == dictpayload["wid"]:
                         resp["wid"] = each["wid"]
@@ -332,7 +329,7 @@ def viewOrCreateOrders():
                     resptickets.append(createTicket(price, dictpayload["sid"], dictpayload["seats"][i]["cid"],
                                                     str(oid), dictpayload["wid"], dictpayload["patron_info"],
                                                     resp["show_info"]))
-                # TO DO : Build order in dictpayload, build response in resp, manage ticket creation
+
                 dateordered = strftime("%Y-%m-%d %H:%M:%S", gmtime())
                 dictpayload["date_ordered"] = dateordered
                 dictpayload["order_amount"] = quantity * int(price)
@@ -347,7 +344,7 @@ def viewOrCreateOrders():
                 resp["order_amount"] = quantity * int(price)
                 return json.dumps(resp), status.HTTP_201_CREATED
         else:
-            return status.HTTP_400_BAD_REQUEST
+            return "", status.HTTP_400_BAD_REQUEST
 
 
 @app.route('/orders/<oid>', methods=['GET', 'PUT', 'DELETE'])
@@ -361,35 +358,45 @@ def editOrders(oid):
                         temptick.append({"tid": ticket["tid"], "status": ticket["status"]})
                 each["tickets"] = temptick
                 return json.dumps(each), status.HTTP_200_OK
-        return status.HTTP_404_NOT_FOUND
+        return "", status.HTTP_404_NOT_FOUND
 
 
 ######### TICKETS #########
 @app.route('/tickets')
 def viewAllTickets():
-    return "Not implemented"
+    return json.dumps(tickets), status.HTTP_200_OK
 
 
 @app.route('/tickets/donations', methods=['POST'])
 def donateTickets():
     if request.method == 'POST':
-        if 'tickets' in request.args:
-            # Header stuff
-            for each in request.args.get("tickets"):
-                for order in orders:
-                    if {"tid": each, "status": "open"} in order["tickets"]:
-                        order["tickets"].pop({"tid": each, "status": "open"})
-                        order["number_of_tickets"] -= 1
-                    for donation in donations:
-                        if donation["wid"] == order["wid"]:
-                            donation["tickets"].append(each)
-                            if len(donation["tickets"]) == donation["count"]:
-                                donation["status"] = "assigned"
-                                # Create order ? Hmmm
-                            return status.HTTP_201_CREATED
-                    donated.append(each)
-                    return status.HTTP_201_CREATED
-        return status.HTTP_400_BAD_REQUEST
+        temptick = []
+        tempdict = {}
+        payload = request.get_json(force=True)
+        # Header stuff
+        for each in payload["tickets"]:
+            isdonated = False
+            for order in orders:
+                tempdict = order.copy()
+                for ticket in tickets:
+                    if ticket["oid"] == tempdict["oid"]:
+                        temptick.append({"tid": ticket["tid"], "status": ticket["status"]})
+                tempdict["tickets"] = temptick
+                for ticket in tempdict["tickets"]:
+                    if (ticket["tid"] == each) & (ticket["status"] == "open"):
+                        for t in tickets:
+                            if t["tid"] == each:
+                                t["status"] = "donated"
+                for donation in donations:
+                    if (donation["wid"] == tempdict["wid"])\
+                            & (len(donation["tickets"]) < donation["count"])\
+                            & (not isdonated):
+                        donation["tickets"].append(each)
+                        donation["status"] = "assigned"
+                        isdonated = True
+
+                            # Create order ? Hmmm
+        return "", status.HTTP_201_CREATED
 
 
 @app.route('/tickets/<tid>', methods=['GET', 'POST', 'PUT', 'DELETE'])
@@ -400,9 +407,9 @@ def viewOrEditTickets(tid):
         resp = {}
         for each in tickets:
             if each["tid"] == tid:
-                resp = each
+                resp = each.copy()
         if resp == {}:
-            return status.HTTP_404_NOT_FOUND
+            return "", status.HTTP_404_NOT_FOUND
         for each in sections:
             if each["sid"] == resp["sid"]:
                 resp["section_name"] = each["section_name"]
@@ -425,7 +432,7 @@ def viewOrEditTickets(tid):
                 if each["tid"] == tid:
                     each["status"] = "used"
             return json.dumps({"tid": tid, "status": "used"}), status.HTTP_200_OK
-        return status.HTTP_400_BAD_REQUEST
+        return "", status.HTTP_400_BAD_REQUEST
 
 
 ######### REPORTS #########
@@ -444,14 +451,14 @@ def viewReport(mrid):
         report = {}
         for each in reports:
             if each["mrid"] == str(mrid):
-                report = each
+                report = each.copy()
         if report == {}:
-            return status.HTTP_404_NOT_FOUND
+            return "", status.HTTP_404_NOT_FOUND
         for show in report["shows"]:
             if not show["wid"] == wid:
                 report["shows"].pop(show)
         if len(report["shows"]) == 0:
-            return status.HTTP_404_NOT_FOUND
+            return "", status.HTTP_404_NOT_FOUND
         return json.dumps(report), status.HTTP_200_OK
     elif ('start_date' in request.args) & ('end_date' in request.args):
         report = {}
@@ -461,14 +468,14 @@ def viewReport(mrid):
         edate = str(end)[0:3] + "-" + str(end)[4:6] + "-" + str(end)[6:8]
         for each in reports:
             if each["mrid"] == str(mrid):
-                report = each
+                report = each.copy()
         if report == {}:
-            return status.HTTP_404_NOT_FOUND
+            return "", status.HTTP_404_NOT_FOUND
         for show in report["shows"]:
             if not sdate < show["show_info"]["date"] < edate:
                 report["shows"].pop(show)
         if len(report["shows"]) == 0:
-            return status.HTTP_404_NOT_FOUND
+            return "", status.HTTP_404_NOT_FOUND
         return json.dumps(report), status.HTTP_200_OK
     else:
         for each in reports:
@@ -482,22 +489,20 @@ def search():
     if ("topic" in request.args) & ("key" in request.args):
         resp = {}
         results = []
-        if not (request.args.get("topic") == "show") | (request.args.get("topic") == "order"):
-            return status.HTTP_400_BAD_REQUEST
+        if not (request.args["topic"] == "show") | (request.args["topic"] == "order"):
+            return "", status.HTTP_400_BAD_REQUEST
 
-        if request.args.get("topic") == "show":
+        if request.args["topic"] == "show":
             for each in shows:
-                for key in each:
-                    for value in each[key]:
-                        if (request.args.get("key") in value) & (not each in results):
-                            results.append(each)
+                for value in each.values():
+                    if (request.args["key"] in str(value)) & (str(value) not in results):
+                        results.append(each)
             resp["shows"] = results
-        elif request.args.get("topic") == "order":
+        elif request.args["topic"] == "order":
             for each in orders:
-                for key in each:
-                    for value in each[key]:
-                        if (request.args.get("key") in value) & (not each in results):
-                            results.append(each)
+                for value in each.values():
+                    if (request.args["key"] in str(value)) & (str(value) not in results):
+                        results.append(each)
             resp["orders"] = results
         return json.dumps(results), status.HTTP_200_OK
 
@@ -515,6 +520,10 @@ def checkSeat(seatlist, number, sid):
     except IndexError:
         return False
 
+def sellSeat(cid):
+    for seat in seats:
+        if seat["cid"] == cid:
+            seat["status"] = "sold"
 
 def createTicket(price, sid, cid, oid, wid, patron_info, show_info):
     global tid
@@ -531,7 +540,7 @@ def init():
     global sid
     global cid
     # seating
-    file = open("project-test-theatre-seating.json", "r")
+    file = open("JSON_files/project-test-theatre-seating.json", "r")
     dic = json.loads(file.read())
     file.close()
     for each in dic:
@@ -539,7 +548,6 @@ def init():
         temp = {"sid": str(sid)}
         temp = {**temp, **each}
         sections.append(temp)
-        print("sid is :" + str(sid))
     # From seating init seats
     for each in sections:
         for seating in each["seating"]:
@@ -547,9 +555,8 @@ def init():
                 cid += 1
                 seats.append(
                     {"sid": each["sid"], "row": seating["row"], "cid": str(cid), "status": "available", "seat": seat})
-    print(seats)
 
 
 if __name__ == "__main__":
     init()
-    app.run(debug=True)
+    app.run(port=8080, debug=True)
