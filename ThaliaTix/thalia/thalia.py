@@ -27,6 +27,7 @@ oid = 0  # Orders
 tid = 0  # Tickets
 cid = 0  # Seats
 
+foundall = False
 
 def checkData(payload, expected):
     return True
@@ -125,7 +126,7 @@ def subscribeToDonations(wid):
     if request.method == 'POST':
         global did
         payload = request.get_json(force=True)
-        if checkData(payload, 'POSTshow'):  # Not the right arg ofc
+        if checkData(payload, 'POSTshow'):
             did += 1
             dictpayload = payload
             dictpayload["did"] = str(did)
@@ -158,7 +159,7 @@ def createSection():
             resp = []
             rownumber = 0
             respdict = {}
-            foundall = False
+            global foundall
             noseats = False
             for each in shows:
                 if each["wid"] == request.args["show"]:
@@ -167,17 +168,8 @@ def createSection():
                         if section["sid"] == str(request.args["section"]):
                             seating = section["seating"]
                             respdict = {**section.copy(), **respdict}
-                    if 'starting_seat_id' in request.args:  # A refaire lol
-                        for seat in seats:
-                            if seat["cid"] == request.args["starting_seat_id"]:
-                                for x in seating:
-                                    if x["row"] == seat["row"]:
-                                        tlist = []
-                                        for el in x["seats"]:
-                                            tlist.append(el["seat"])
-                                        startingseat = tlist.index(seat["seat"])+1
-                                    else:
-                                        seating.remove(x)
+                    if 'starting_seat_id' in request.args:
+                        startingseat = findStartingSeat(request.args["starting_seat_id"], seating)
                     else:
                         startingseat = 1
                     for row in seating:
@@ -185,24 +177,11 @@ def createSection():
                         freeseats.clear()
                         count = 0
                         i = int(startingseat)
-                        while checkSeat(row, i, request.args["section"]):
-                            freeseats.append(str(row["seats"][i-1]["seat"])+"-"+row["row"])
-                            count += 1
-                            i += 1
-                            if count >= int(request.args["count"]):
-                                foundall = True
-                                break
+                        freeseats = findFreeSeats(row, i, request.args["section"], count, request.args["count"])
                     if not foundall:
                         noseats = True
-                    for freeseat in freeseats:
-                        data = freeseat.split("-")
-                        for seat in seats:
-                            if (seat["sid"] == request.args["section"])\
-                                    & (seat["seat"] == data[0])\
-                                    & (seat["row"] == data[1]):
-                                tempd = {"cid": seat["cid"], "status": seat["status"], "seat": seat["seat"]}
-                                resp.append(tempd)
-                                rownumber = seat["row"]
+                    resp = seatFormatting(freeseats, request.args["section"])
+                    rownumber = freeseats[0].split("-")[1]
                     respdict = {**each.copy(), **respdict}
                     if "seating_info" in respdict:
                         respdict.pop("seating_info")
@@ -218,7 +197,6 @@ def createSection():
                     for info in seatinginfo:
                         if info["sid"] == request.args["section"]:
                             respdict["total_amount"] = int(info["price"])*count
-                    print(respdict)
                     return json.dumps(respdict), status.HTTP_200_OK
             return json.dumps(''), status.HTTP_404_NOT_FOUND
         else:
@@ -233,18 +211,14 @@ def createSection():
     if request.method == 'POST':
         global sid
         payload = request.get_json(force=True)
-        if checkData(payload, 'POSTshow'):  # Not the right arg
-            with lock:
-                sid += 1
-                dictpayload = payload
-                dictpayload["sid"] = str(sid)
-                sections.append(dictpayload)
-                resp = {}
-                resp["sid"] = str(sid)
-                return json.dumps(resp), status.HTTP_201_CREATED
-        else:
-            return json.dumps(''), status.HTTP_400_BAD_REQUEST
-
+        with lock:
+            sid += 1
+            dictpayload = payload
+            dictpayload["sid"] = str(sid)
+            sections.append(dictpayload)
+            resp = {}
+            resp["sid"] = str(sid)
+            return json.dumps(resp), status.HTTP_201_CREATED
 
 @app.route('/thalia/seating/<sid>', methods=['GET', 'PUT', 'DELETE'])
 def editOrRequestSections(sid):
@@ -257,7 +231,7 @@ def editOrRequestSections(sid):
         for each in sections:
             if each["sid"] == str(sid):
                 payload = request.get_json(force=True)
-                if checkData(payload, 'POSTshow'):  # Not the right arg
+                if checkData(payload, 'POSTshow'):
                     sections.remove(each)
                     dictpayload = payload
                     dictpayload["sid"] = str(sid)
@@ -313,7 +287,7 @@ def viewOrCreateOrders():
         price = 0
         resptickets = []
         payload = request.get_json(force=True)
-        if checkData(payload, 'POSTshow'):  # Not the right arg
+        if checkData(payload, 'POSTshow'):
             with lock:
                 oid += 1
                 resp = {}
@@ -534,6 +508,41 @@ def createTicket(price, sid, cid, oid, wid, patron_info, show_info):
     tickets.append(tickdict)
     return tid
 
+def findStartingSeat(cid, seating):
+    for seat in seats:
+        if seat["cid"] == cid:
+            for x in seating:
+                if x["row"] == seat["row"]:
+                    tlist = []
+                    for el in x["seats"]:
+                        tlist.append(el["seat"])
+                    return tlist.index(seat["seat"]) + 1
+                else:
+                    seating.remove(x)
+
+def findFreeSeats(row, i, section, count, goal):
+    templist = []
+    global foundall
+    while checkSeat(row, i, section):
+        templist.append(str(row["seats"][i-1]["seat"])+"-"+row["row"])
+        count += 1
+        i += 1
+        if count >= int(goal):
+            foundall = True
+            break
+    return templist
+
+def seatFormatting(freeseats, section):
+    templist = []
+    for freeseat in freeseats:
+        data = freeseat.split("-")
+        for seat in seats:
+            if (seat["sid"] == section)\
+                    & (seat["seat"] == data[0])\
+                    & (seat["row"] == data[1]):
+                tempd = {"cid": seat["cid"], "status": seat["status"], "seat": seat["seat"]}
+                templist.append(tempd)
+    return templist
 
 def init(filename):
     global sid
