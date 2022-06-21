@@ -23,7 +23,7 @@ louis==3.0.0
 MarkupSafe==1.0
 matplotlib==2.0.0
 nose2==0.7.2
-numpy==1.12.1
+numpy==1.22.0
 Pillow==4.0.0
 pyasn1==0.1.9
 pycrypto==2.6.1
